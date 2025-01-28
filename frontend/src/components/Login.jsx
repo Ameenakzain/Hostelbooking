@@ -1,37 +1,33 @@
-// src/components/Login.jsx
 import React, { useState } from "react";
+import "../styles/Login.css";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [isSignup, setIsSignup] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Logging in", { username, password });
+    // Handle login or signup logic here
   };
 
   return (
-    <div className="login-container">
-      <h2>User Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+    <div className="user-login-container">
+      <div className="login-form">
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <label>Email</label>
+          <input type="email" placeholder="Enter your email" required />
+          <label>Password</label>
+          <input type="password" placeholder="Enter your password" required />
+          <button type="submit">Login</button>
+        </form>
+        <a href="/forgot-password" className="forgot-password">
+          Forgot Password?
+        </a>
+        <div className="signup-link">
+          <p>Don't have an account?</p>
+          <a href="/signup">Sign Up</a>
         </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      </div>
     </div>
   );
 };

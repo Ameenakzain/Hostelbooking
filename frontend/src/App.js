@@ -1,23 +1,19 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./Homepage";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import AdminLogin from "./components/AdminLogin";
-import AdminRegister from "./components/AdminRegister";
+import Homepage from "./Homepage.jsx";
+import Login from './components/Login.jsx';
+import OwnerLogin from './components/OwnerLogin.jsx';
 
-const App = () => {
+
+function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/register" element={<AdminRegister />} />
+        <Route path="/owner-login" element={<OwnerLogin />} />
       </Routes>
     </Router>
   );
-};
+}
 
 export default App;
