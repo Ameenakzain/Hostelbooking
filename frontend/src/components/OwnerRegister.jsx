@@ -1,78 +1,89 @@
-// OwnerRegistration.js
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useDropzone } from "react-dropzone";
+import axios from "axios";
+import "../styles/OwnerRegister.css"; // Import your CSS file
 
-const OwnerRegistration = () => {
+const OwnerRegister = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phoneNumber: '',
-    password: '',
-    confirmPassword: '',
-    hostelName: '',
-    address: '',
-    hostelPics: []
+    fullName: "",
+    email: "",
+    contact: "",
+    password: "",
+    confirmPassword: "",
+    hostelName: "",
+    hostelAddress: "",
+    licenseFile: null,
   });
 
+  // Handle input change
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, hostelPics: e.target.files });
-  };
+  // Handle file upload
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      setFormData({ ...formData, licenseFile: acceptedFiles[0] });
+    },
+  });
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      alert("Passwords do not match!");
       return;
     }
 
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append('name', formData.name);
-    formDataToSubmit.append('email', formData.email);
-    formDataToSubmit.append('phoneNumber', formData.phoneNumber);
-    formDataToSubmit.append('password', formData.password);
-    formDataToSubmit.append('hostelName', formData.hostelName);
-    formDataToSubmit.append('address', formData.address);
-
-    // Append files to FormData
-    for (let i = 0; i < formData.hostelPics.length; i++) {
-      formDataToSubmit.append('hostelPics', formData.hostelPics[i]);
-    }
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
 
     try {
-      const response = await axios.post('http://localhost:5000/api/owner/register', formDataToSubmit, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const response = await axios.post("http://localhost:5000/api/owner/signup", data, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      alert(response.data.message);
+      alert("Signup successful!");
     } catch (error) {
-      console.error(error);
-      alert('Error registering owner');
+      console.error("Error:", error);
+      alert("Signup failed. Try again.");
     }
   };
 
   return (
-    <div>
-      <h2>Owner Registration</h2>
+    <div className="register-container">
+      <h2 className="logo">BOOK<span className="highlight">myHOSTEL</span></h2>
+      <h2>Welcome</h2>
+      <p>Create your account</p>
+
       <form onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
-        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-        <input type="text" name="phoneNumber" placeholder="Phone Number" onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
-        <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} required />
+        <input type="text" name="fullName" placeholder="Enter your full name" onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Enter your email address" onChange={handleChange} required />
+        <input type="tel" name="contact" placeholder="Enter your contact number" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Enter your password" onChange={handleChange} required />
+        <input type="password" name="confirmPassword" placeholder="Confirm your password" onChange={handleChange} required />
+
+        <h4>Hostel details</h4>
         <input type="text" name="hostelName" placeholder="Hostel Name" onChange={handleChange} required />
-        <input type="text" name="address" placeholder="Address" onChange={handleChange} required />
-        <input type="file" name="hostelPics" multiple onChange={handleFileChange} />
-        <button type="submit">Register</button>
+        <input type="text" name="hostelAddress" placeholder="Hostel address" onChange={handleChange} required />
+
+        <p>Upload a copy of your license to manage hostels</p>
+        <div {...getRootProps()} className="dropzone">
+          <input {...getInputProps()} />
+          <p>Drag and drop files to upload or</p>
+          <button type="button">Browse</button>
+        </div>
+
+        <button type="submit" className="signup-btn">SIGN UP</button>
       </form>
+
+      <p>OR</p>
+      <button className="google-signin">Continue with Google</button>
+      <p>Already have an account? <a href="/login">Login</a></p>
     </div>
   );
 };
 
-export default OwnerRegistration;
+export default OwnerRegister;

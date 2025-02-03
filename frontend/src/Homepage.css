@@ -3,7 +3,7 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   box-sizing: border-box;
-  background-image: url("../public/hotel-and-building-illustration-vector.jpg"); /* Ensure image is in the public folder */
+  background-image: url("../public/hotel-and-building-illustration-vector.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -59,7 +59,7 @@ body {
 }
 
 .navbar .login-btn {
-  background: linear-gradient(60deg, #e26b55,#eb2121);
+  background: linear-gradient(60deg, #e26b55, #eb2121);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -74,6 +74,77 @@ body {
 .navbar .login-btn:hover {
   background: linear-gradient(90deg, #c71e07, #f80101);
   transform: scale(1.05);
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(8px); /* Enhanced background blur */
+  z-index: 1000; /* Ensures popup is above other elements */
+}
+
+.popup {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  width: 100%;
+  max-width: 420px; /* Controlled width */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out; /* Smooth animation */
+}
+
+/* Animation for smooth appearance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Buttons inside the popup */
+.popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.popup-buttons button,
+.popup-btn,
+.close-popup {
+  background-color: #ff7f50;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.popup-buttons button:hover,
+.popup-btn:hover {
+  background-color: #e7632f;
+}
+
+.close-popup {
+  background-color: #ff4b5c;
+}
+
+.close-popup:hover {
+  background-color: #e43c4c;
 }
 
 /* Hero Section Styles */
@@ -168,59 +239,5 @@ body {
   padding: 1rem;
   border-radius: 50%;
   font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.chat-now:hover {
-  background-color: #e43c4c;
-}
-
-/* Popup Styles */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 10px;
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
-}
-
-.popup-buttons button {
-  margin: 1rem;
-  background-color: #32cd32;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.popup-buttons button:hover {
-  background-color: #28a428;
-}
-
-.close-popup {
-  background-color: #ff4b5c;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.close-popup:hover {
-  background-color: #e43c4c;
+  cursor: pointe
 }

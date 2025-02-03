@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/OwnerLogin.css"; // Make sure the correct path is used
 
 const OwnerLoginPage = () => {
@@ -25,7 +26,7 @@ const OwnerLoginPage = () => {
         </a>
         <div className="signup-link">
           <p>Don't have an account?</p>
-          <a href="/owner-signup">Sign Up</a>
+          <Link to="/owner-signup">Sign Up</Link>
         </div>
       </div>
     </div>
