@@ -1,52 +1,78 @@
-// src/components/AdminRegister.jsx
-import React, { useState } from "react";
+// OwnerRegistration.js
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const AdminRegister = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const OwnerRegistration = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    confirmPassword: '',
+    hostelName: '',
+    address: '',
+    hostelPics: []
+  });
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, hostelPics: e.target.files });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match!");
       return;
     }
-    console.log("Admin Registering", { username, password });
+
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append('name', formData.name);
+    formDataToSubmit.append('email', formData.email);
+    formDataToSubmit.append('phoneNumber', formData.phoneNumber);
+    formDataToSubmit.append('password', formData.password);
+    formDataToSubmit.append('hostelName', formData.hostelName);
+    formDataToSubmit.append('address', formData.address);
+
+    // Append files to FormData
+    for (let i = 0; i < formData.hostelPics.length; i++) {
+      formDataToSubmit.append('hostelPics', formData.hostelPics[i]);
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/owner/register', formDataToSubmit, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      alert(response.data.message);
+    } catch (error) {
+      console.error(error);
+      alert('Error registering owner');
+    }
   };
 
   return (
-    <div className="admin-register-container">
-      <h2>Admin Register</h2>
+    <div>
+      <h2>Owner Registration</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
+        <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+        <input type="text" name="phoneNumber" placeholder="Phone Number" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} required />
+        <input type="text" name="hostelName" placeholder="Hostel Name" onChange={handleChange} required />
+        <input type="text" name="address" placeholder="Address" onChange={handleChange} required />
+        <input type="file" name="hostelPics" multiple onChange={handleFileChange} />
         <button type="submit">Register</button>
       </form>
     </div>
   );
 };
 
-export default AdminRegister;
+export default OwnerRegistration;

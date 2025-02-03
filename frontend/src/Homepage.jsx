@@ -30,8 +30,14 @@ const Homepage = () => {
       </nav>
 
       {/* Hero Section */}
-      
       <header className="hero-section">
+        {/* Background Image */}
+        <img
+          src={`${process.env.PUBLIC_URL}/hotel-and-building-illustration-vector.jpg`}
+          alt="Hostel Illustration"
+          className="hero-background"
+        />
+
         <div className="hero-content">
           <h1>Find your perfect stay!</h1>
           <p>SEARCH AND BOOK HOSTELS WITH EASE</p>
@@ -50,8 +56,6 @@ const Homepage = () => {
           </div>
         </div>
       </header>
-
-      
 
       {/* Chat Now Button */}
       <button className="chat-now">Chat now!</button>
@@ -76,5 +80,3 @@ const Homepage = () => {
 };
 
 export default Homepage;
-
-
