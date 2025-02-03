@@ -14,6 +14,8 @@ const OwnerRegister = () => {
     hostelAddress: "",
     licenseFile: null,
   });
+  const [fileError, setFileError] = useState(""); // To handle file errors
+  const [uploadedFileName, setUploadedFileName] = useState("");
 
   // Handle input change
   const handleChange = (e) => {
@@ -21,10 +23,21 @@ const OwnerRegister = () => {
   };
 
   // Handle file upload
+  const onDrop = (acceptedFiles, rejectedFiles) => {
+    if (rejectedFiles.length > 0) {
+      setFileError("Only PDF files are allowed.");
+      return;
+    }
+
+    setFileError("");
+    setFormData({ ...formData, licenseFile: acceptedFiles[0] });
+    setUploadedFileName(acceptedFiles[0].name);
+  };
+
   const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      setFormData({ ...formData, licenseFile: acceptedFiles[0] });
-    },
+    accept: { "application/pdf": [".pdf"] }, // ✅ Proper MIME type
+    maxFiles: 1,
+    onDrop,
   });
 
   // Handle form submission
@@ -35,6 +48,7 @@ const OwnerRegister = () => {
       alert("Passwords do not match!");
       return;
     }
+    console.log(formData);
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -75,6 +89,7 @@ const OwnerRegister = () => {
           <p>Drag and drop files to upload or</p>
           <button type="button">Browse</button>
         </div>
+        {uploadedFileName && <p>Uploaded file: {uploadedFileName}</p>}
 
         <button type="submit" className="signup-btn">SIGN UP</button>
       </form>

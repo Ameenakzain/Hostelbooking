@@ -7,7 +7,9 @@ const ownerSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   hostelName: { type: String, required: true },
   address: { type: String, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  licenseFile: { type: String } // Store file path
+
 });
 
 // Hash password before saving
