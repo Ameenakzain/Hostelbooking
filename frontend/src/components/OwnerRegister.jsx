@@ -43,20 +43,29 @@ const OwnerRegister = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    console.log(formData);
+    if (!formData.licenseFile) {  // ✅ Check if the license file is uploaded
+      alert("Please upload a license file.");
+      return;
+    }
+    console.log(formData); 
 
     const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
+    data.append("fullName", formData.fullName);
+    data.append("email", formData.email);
+    data.append("contact", formData.contact);
+    data.append("password", formData.password);
+    data.append("hostelName", formData.hostelName);
+    data.append("hostelAddress", formData.hostelAddress);
+    data.append("licenseFile", formData.licenseFile);
+  
 
     try {
-      const response = await axios.post("http://localhost:5000/api/owner/signup", data, {
+      const response = await axios.post("http://localhost:5000/owners/signup", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Signup successful!");

@@ -2,16 +2,27 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+//app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: "http://localhost:3001",  // ✅ Allow frontend running on 3001 to access the backend
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
+// ✅ Ensure "uploads" folder exists
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+  console.log("📂 'uploads' folder created.");
+}
 
 // 🔗 Connect to MongoDB
-mongoose.connect(process.env.ConnectionString, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.ConnectionString)
 .then(() => console.log("✅ MongoDB Connected Successfully"))
 .catch(err => console.log("❌ MongoDB Connection Error:", err));
 

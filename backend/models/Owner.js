@@ -2,14 +2,13 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const ownerSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  fullName: { type: String, required: true }, // ✅ Changed `name` to `fullName`
   email: { type: String, required: true, unique: true },
-  phone: { type: String, required: true },
+  contact: { type: String, required: true }, // ✅ Changed `phone` to `contact`
   hostelName: { type: String, required: true },
-  address: { type: String, required: true },
+  hostelAddress: { type: String, required: true },
   password: { type: String, required: true },
   licenseFile: { type: String } // Store file path
-
 });
 
 // Hash password before saving
