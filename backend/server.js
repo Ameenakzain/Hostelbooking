@@ -1,18 +1,24 @@
 require("dotenv").config();
 const express = require("express");
+
 const mongoose = require("mongoose");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
-
+const bodyParser = require("body-parser");
 const app = express();
-//app.use(express.json());
+//Middleware
+app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: "http://localhost:3001",  // ✅ Allow frontend running on 3001 to access the backend
+  origin: "http://localhost:3000",  // ✅ Allow frontend running on 3001 to access the backend
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 // ✅ Ensure "uploads" folder exists
 const uploadDir = path.join(__dirname, "uploads");
@@ -27,8 +33,10 @@ mongoose.connect(process.env.ConnectionString)
 .catch(err => console.log("❌ MongoDB Connection Error:", err));
 
 const OwnerRoutes = require("./routes/OwnerRoutes");
-app.use("/owners", OwnerRoutes); // Mount the routes for handling owner-related requests
+app.use("/api/owners", OwnerRoutes); // Mount the routes for handling owner-related requests
 
+const userRoutes = require("./routes/userRoutes"); // Ensure this path is correct
+app.use("/api/users", userRoutes); // Mount user-related routes
 
 // 📌 Sample Route
 app.get("/", (req, res) => {

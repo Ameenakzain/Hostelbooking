@@ -2,14 +2,19 @@ const express = require("express");
 const multer = require("multer");
 const uploads = multer({ dest: "uploads/" });
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 const {
   registerOwner,
+  ownerLogin,
   getAllOwners,
   getOwnerById,
   deleteOwner
 } = require("../controllers/OwnerController");
 const path = require("path");
+dotenv.config();
 const Owner = require("../models/Owner");
+
 const router = express.Router();
 const fs = require("fs");
 
@@ -24,7 +29,7 @@ if (!fs.existsSync(uploadDir)) {
 // Configure Multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Ensure the folder exists
+    cb(null,uploadDir); // Ensure the folder exists
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -72,9 +77,9 @@ router.post("/signup", upload.single("licenseFile"), async (req, res) => {
       fullName,
       email,
       contact,
-      password: hashedPassword,
       hostelName,
       hostelAddress,
+      password: hashedPassword,
       licenseFile: req.file.filename // Save file path in database
     });
 
@@ -85,5 +90,74 @@ router.post("/signup", upload.single("licenseFile"), async (req, res) => {
     res.status(500).json({ message: "Signup failed. Try again." });
   }
 });
+
+// 🔑 Owner Login Route
+/*router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const owner = await Owner.findOne({ email });
+
+    if (!owner) {
+      return res.status(400).json({ message: "Invalid credentials (Email not found)" });
+    }
+    console.log("🔹 Owner found:", owner);
+
+    // ✅ Compare hashed password
+    //const isMatch = await bcrypt.compare(password, owner.password);
+    if (!isMatch) {
+      //return res.status(400).json({ message: "Invalid credentials (Password incorrect)" });
+    }
+
+    // ✅ Generate JWT Token
+    const token = jwt.sign({ id: owner._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    //res.json({ token, ownerId: owner._id });
+  } catch (error) {
+    //res.status(500).json({ message: "Server error" });
+  }
+});*/
+router.post("/login", async (req, res) => {
+  console.log("Login route hit"); // Debug log
+
+  try {
+    const { email, password } = req.body;
+    console.log("Request body:", req.body); // Log the incoming data
+
+    // Validate input fields
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Check if user exists in the database
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    console.log("🔹 User found:", user);
+
+    // Compare the hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // Generate JWT Token for authentication
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    // Send the success response with user details (excluding password)
+    const { password: _, ...userWithoutPassword } = user.toObject(); // Exclude password from response
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: userWithoutPassword,
+    });
+
+  } catch (error) {
+    console.error("Error in /login route:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 module.exports = router;

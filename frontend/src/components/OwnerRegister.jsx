@@ -65,7 +65,7 @@ const OwnerRegister = () => {
   
 
     try {
-      const response = await axios.post("http://localhost:5000/owners/signup", formData, {
+      const response = await axios.post("http://localhost:5000/api/owners/signup", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Signup successful!");
