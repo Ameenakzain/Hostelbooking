@@ -1,5 +1,6 @@
-const Owner = require("../models/Owner");
 
+const Owner = require("../models/Owner");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 // 📌 Register a New Owner (with File Upload)
@@ -32,12 +33,12 @@ exports.registerOwner = async (req, res) => {
 
       // ✅ Create a new owner object
     const newOwner = new Owner({
-        name: fullName,
-        email: email,
-        phone: contact,
-        hostelName: hostelName,
-        address: hostelAddress,
-        password: hashedPassword,
+        fullName,
+        email,
+        contact,
+        hostelName,
+        hostelAddress,
+        password:hashedPassword,
         licenseFile: req.file.filename, // ✅ Store only the filename, not full path
       });
   
@@ -51,6 +52,36 @@ exports.registerOwner = async (req, res) => {
   }
 };
 
+
+// 📌 Owner Login
+exports.ownerLogin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if owner exists
+        const owner = await Owner.findOne({ email });
+        if (!owner) {
+            return res.status(400).json({ message: "Invalid email or password." });
+        }
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, owner.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid email or password." });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ id: owner._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+        res.status(200).json({
+            message: "Login successful",
+            token,
+            ownerId: owner._id
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
 
   
 

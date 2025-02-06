@@ -69,9 +69,7 @@ const Homepage = () => {
               <button onClick={() => navigate("/login")}>User</button>
               <button onClick={() => navigate("/owner-login")}>Owner</button>
             </div>
-            <button className="close-popup" onClick={handleClosePopup}>
-              Close
-            </button>
+
           </div>
         </div>
       )}
