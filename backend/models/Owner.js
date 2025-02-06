@@ -36,7 +36,9 @@ ownerSchema.pre("save", async function (next) {
   }
   next();
 });*/
+ownerSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 const Owner = mongoose.model("Owner", ownerSchema);
 module.exports = Owner;
-

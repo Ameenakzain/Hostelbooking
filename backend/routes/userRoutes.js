@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 //const { userSignup } = require("../controllers/userController"); // Import the userSignup function
 const router = express.Router();
+//const userController = require("../controllers/userController");
 
 // POST route to register a user
 
@@ -76,6 +77,7 @@ router.post("/login", async (req, res) => {
       //res.status(500).json({ message: "Server error" });
     }
   });*/
+ 
   
 
 module.exports = router;

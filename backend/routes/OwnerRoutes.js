@@ -4,17 +4,19 @@ const uploads = multer({ dest: "uploads/" });
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const {
+const OwnerController = require("../controllers/OwnerController");
+
+/*const {
   registerOwner,
   ownerLogin,
   getAllOwners,
   getOwnerById,
-  deleteOwner
-} = require("../controllers/OwnerController");
+  deleteOwner,
+  resetPassword,
+} = require("../controllers/OwnerController");*/
 const path = require("path");
 dotenv.config();
 const Owner = require("../models/Owner");
-
 const router = express.Router();
 const fs = require("fs");
 
@@ -48,76 +50,58 @@ const upload = multer({
   }
 });
 
-// 🛠 Owner Registration Route with File Upload
-router.post("/signup", upload.single("licenseFile"), async (req, res) => {
-  console.log("File uploaded:", req.file);
+router.post("/owner-signup", upload.single("licenseFile"), async (req, res) => {
+  console.log("Owner registration route hit");
   try {
-    console.log("Received body:", req.body); 
     const { fullName, email, contact, password, confirmPassword, hostelName, hostelAddress } = req.body;
 
+    // Validate required fields
+    if (!fullName || !email || !contact || !password || !confirmPassword || !hostelName || !hostelAddress) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Check if passwords match
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
-     // ✅ Check if email already exists
-     const existingOwner = await Owner.findOne({ email });
-     if (existingOwner) {
-       return res.status(400).json({ message: "Email already registered" });
-     }
 
-    // File Upload Validation
+    // Check if the owner already exists
+    const existingOwner = await Owner.findOne({ email });
+    if (existingOwner) {
+      return res.status(400).json({ message: "Owner already registered with this email" });
+    }
+
+    // Validate file upload
     if (!req.file) {
       return res.status(400).json({ message: "License file is required" });
     }
 
-
-    // ✅ Hash password before saving
+    // Hash the password before saving to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create a new owner
     const newOwner = new Owner({
       fullName,
       email,
       contact,
+      password: hashedPassword,
       hostelName,
       hostelAddress,
-      password: hashedPassword,
-      licenseFile: req.file.filename // Save file path in database
+      licenseFile: req.file.filename, // Save the uploaded file name
     });
 
+    // Save the owner to the database
     await newOwner.save();
     res.status(201).json({ message: "Owner registered successfully!" });
   } catch (error) {
-    console.error("Signup Error:", error);
-    res.status(500).json({ message: "Signup failed. Try again." });
+    console.error("Error registering owner:", error);
+    res.status(500).json({ message: "Server error. Please try again." });
   }
 });
 
-// 🔑 Owner Login Route
-/*router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
 
-  try {
-    const owner = await Owner.findOne({ email });
 
-    if (!owner) {
-      return res.status(400).json({ message: "Invalid credentials (Email not found)" });
-    }
-    console.log("🔹 Owner found:", owner);
-
-    // ✅ Compare hashed password
-    //const isMatch = await bcrypt.compare(password, owner.password);
-    if (!isMatch) {
-      //return res.status(400).json({ message: "Invalid credentials (Password incorrect)" });
-    }
-
-    // ✅ Generate JWT Token
-    const token = jwt.sign({ id: owner._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-    //res.json({ token, ownerId: owner._id });
-  } catch (error) {
-    //res.status(500).json({ message: "Server error" });
-  }
-});*/
-router.post("/login", async (req, res) => {
+router.post("/owner-login", async (req, res) => {
   console.log("Login route hit"); // Debug log
 
   try {
@@ -130,27 +114,26 @@ router.post("/login", async (req, res) => {
     }
 
     // Check if user exists in the database
-    const user = await User.findOne({ email });
-    if (!user) {
+    const owner = await Owner.findOne({ email });
+    if (!owner) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    console.log("🔹 User found:", user);
+    console.log("🔹 Owner found:", owner);
 
     // Compare the hashed password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, owner.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
     // Generate JWT Token for authentication
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    //const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     // Send the success response with user details (excluding password)
-    const { password: _, ...userWithoutPassword } = user.toObject(); // Exclude password from response
+    //const { password: _, ...userWithoutPassword } = user.toObject(); // Exclude password from response
     res.status(200).json({
       message: "Login successful",
-      token,
-      user: userWithoutPassword,
+      owner
     });
 
   } catch (error) {
@@ -158,6 +141,10 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.post("/forgot-password", OwnerController.forgotPassword);
+
+router.post("/reset-password", OwnerController.resetPassword); 
 
 
 module.exports = router;

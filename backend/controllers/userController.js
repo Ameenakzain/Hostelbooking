@@ -67,6 +67,8 @@ const userLogin = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
+
+
   
   // Exporting both controller functions
   module.exports = { userSignup, userLogin };
