@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+//const OwnerRoutes = require("backend/routes/OwnerRoutes");  // Check this import
 
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -18,6 +19,7 @@ app.use(cors({
 }));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+//app.use("/uploads", express.static(uploadDir));
 
 
 // ✅ Ensure "uploads" folder exists
@@ -39,8 +41,13 @@ const userRoutes = require("./routes/userRoutes"); // Ensure this path is correc
 app.use("/api/users", userRoutes); // Mount user-related routes
 
 // 📌 Sample Route
-app.get("/", (req, res) => {
-  res.send("Welcome to Hostel Booking API!");
+app.get("/", async (req, res) => {
+  try {
+    res.send("Welcome to Hostel Booking API!");
+  } catch (error) {
+    console.error("Error in / route:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Start Server

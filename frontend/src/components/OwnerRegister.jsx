@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import "../styles/OwnerRegister.css"; // Import your CSS file
@@ -24,6 +26,7 @@ const OwnerRegister = () => {
 
   // Handle file upload
   const onDrop = (acceptedFiles, rejectedFiles) => {
+  try {
     if (rejectedFiles.length > 0) {
       setFileError("Only PDF files are allowed.");
       return;
@@ -32,6 +35,10 @@ const OwnerRegister = () => {
     setFileError("");
     setFormData({ ...formData, licenseFile: acceptedFiles[0] });
     setUploadedFileName(acceptedFiles[0].name);
+  } catch (error) {
+    console.error("File upload error:", error);
+    setFileError("An error occurred while uploading the file.");
+  }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -43,35 +50,56 @@ const OwnerRegister = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
+    const { fullName, email, contact, password, confirmPassword, hostelName, hostelAddress, licenseFile } = formData;
+    const cleanedEmail = email.trim().toLowerCase();
+    const cleanedPassword = password.trim();
+    const cleanedConfirmPassword = confirmPassword.trim();
+    if (cleanedPassword !== cleanedConfirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    if (!formData.licenseFile) {  // ✅ Check if the license file is uploaded
+    if (!licenseFile) {  // ✅ Check if the license file is uploaded
       alert("Please upload a license file.");
       return;
     }
-    console.log(formData); 
+    //console.log(formData); 
+    //console.log("Data being sent:", formData);
 
     const data = new FormData();
-    data.append("fullName", formData.fullName);
-    data.append("email", formData.email);
-    data.append("contact", formData.contact);
-    data.append("password", formData.password);
-    data.append("hostelName", formData.hostelName);
-    data.append("hostelAddress", formData.hostelAddress);
-    data.append("licenseFile", formData.licenseFile);
-  
+    data.append("fullName", fullName);
+    data.append("email", cleanedEmail);
+    data.append("contact", contact);
+    data.append("password", cleanedPassword);
+    data.append("confirmPassword", cleanedConfirmPassword);
+    data.append("hostelName", hostelName);
+    data.append("hostelAddress", hostelAddress);
+    data.append("licenseFile", licenseFile);
 
+    //console.log("Data being sent:", Object.fromEntries(data.entries())); // ✅ Log to check data before sending
+    console.log("🔵 FormData being sent:");
+    for (let pair of data.entries()) {
+     console.log(`${pair[0]}:`, pair[1]);  // Log each key-value pair
+    }
     try {
-      const response = await axios.post("http://localhost:5000/api/owners/signup", formData, {
+      const response = await axios.post("http://localhost:5000/api/owners/owner-signup", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      console.log("Response:", response.data);
       alert("Signup successful!");
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Signup Error:", error);
       alert("Signup failed. Try again.");
+
+      if (error.response) {
+        console.error("Server responded with:", error.response.data);
+        alert(`Signup failed: ${error.response.data.message || "Unknown error"}`);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        alert("No response from server. Please check your network.");
+      } else {
+        console.error("Error setting up request:", error.message);
+        alert(`An error occurred: ${error.message}`);
+      }
     }
   };
 
@@ -99,6 +127,10 @@ const OwnerRegister = () => {
           <button type="button">Browse</button>
         </div>
         {uploadedFileName && <p>Uploaded file: {uploadedFileName}</p>}
+
+        {/* Show file error message */}
+        {fileError && <p className="error">{fileError}</p>}
+
 
         <button type="submit" className="signup-btn">SIGN UP</button>
       </form>

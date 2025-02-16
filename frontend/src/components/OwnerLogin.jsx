@@ -7,97 +7,53 @@ const OwnerLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent default form submission
-    const trimmedEmail = email.trim();
-    const trimmedPassword = password.trim();
-    console.log("Sending Data:", { email: trimmedEmail, password: trimmedPassword });
-    
+    setError("");
+    setLoading(true);
+    const cleanedEmail = email.trim().toLowerCase(); // Convert email to lowercase
+    const cleanedPassword = password.trim(); // Remove any spaces
+
+    console.log("🔵 Sending Data:", { email: cleanedEmail, password: cleanedPassword });
+
     try {
-      const response = await fetch("http://localhost:5000/api/owners/owner-login", {
-        method:'POST',
       
-      //email: trimmedEmail,
-      //password: trimmedPassword,
+      const response = await axios.post("http://localhost:5000/api/owners/login", {
+        email: cleanedEmail, password: cleanedPassword
+      },{
       headers: {
         "Content-Type": "application/json",
       },
 
-      body: JSON.stringify({
-        email: trimmedEmail,
-        password: trimmedPassword
-    })
-    },
-    /*{
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }*/
-     );
-     
-    //Nconsole.log("Login successful:", response);
-    //NsetError("");
+    });
 
+    console.log("🔍 Backend Response:", response); 
 
-        /*method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword }),
-      });*/
-
-      //const data = await response.json();
-      //Nconst data = response;
-      //Nconsole.log("🔹 Response Data:", response);
-
-      /*Nif (!response.ok) {
-        setError(data.message || "Login failed. Please try again.");
-        return;
-      }*/
-        if (!response.ok) {
-          const errorData = await response.json();  // Parse the response to JSON
-          console.log("Error Response Data:", errorData);
-          setError(errorData.message || "Login failed. Please try again.");
-          return;
-        }
-
-        const data = await response.json();  // Ensure the response is parsed as JSON
-        console.log("🔹 Response Data:", data);
-
-      if (!data.token) {
-        setError("Login successful, but no token received.");
-        return;
-      }
-      /*} catch (error) {
-        console.error("Error logging in:", error.response?.data?.message || error.message);
-        setErrorMessage(error.response?.data?.message || "Invalid credentials.");
-      }
-    };
-  
-        if (response.status !== 200) {
-          setError(response.data.message || "Login failed. Please try again.");
-          return;
-        }
-        
-        if (!response.data.token) {
-          setError("Login successful, but no token received.");
-          return;
-        }*/
-
-
-
-      // Store token and owner ID in local storage
-      localStorage.setItem("ownerToken", data.token);
-      localStorage.setItem("ownerId", data.ownerId);
-
-      // Redirect to Owner Dashboard
+    if (response.status === 200 && response.data.token) {
+      console.log("✅ Login successful:", response.data);
+      localStorage.setItem("ownerToken", response.data.token);
+      localStorage.setItem("ownerId", response.data.ownerId);
+      
+      await axios.post("http://localhost:5000/api/owners/send-verification", {
+        email: cleanedEmail,
+      });
+      console.log("📧 Verification email sent!");
+      
       navigate("/owner-dashboard");
-
-    } catch (error) {
-      console.error("❌ Error:", error);
-      setError("An error occurred. Please try again.");
-    }
-  };
+  } else {
+      setError("Login successful, but no token received.");
+  }
+} catch (error) {
+  console.error("❌ Login Error:", error.response?.data || error.message);
+  setError(error.response?.data?.message || "Login failed. Please try again.");
+} finally {
+  setLoading(false);
+}
+};
+  
 
   return (
     <div className="owner-login-container">

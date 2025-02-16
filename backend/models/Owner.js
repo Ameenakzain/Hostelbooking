@@ -5,13 +5,14 @@ const ownerSchema = new mongoose.Schema({
   fullName: { type: String, required: true }, // ✅ Changed `name` to `fullName`
   email: { type: String, required: true, unique: true },
   contact: { type: String, required: true }, // ✅ Changed `phone` to `contact`
+  password: { type: String, required: true },
   hostelName: { type: String, required: true },
   hostelAddress: { type: String, required: true },
-  password: { type: String, required: true },
-  licenseFile: { type: String } // Store file path
+  licenseFile: { type: String } ,// Store file path
+  isEmailConfirmed: { type: Boolean, default: false },
 });
 // Pre-save hook to hash the password before saving
-ownerSchema.pre("save", async function (next) {
+/*ownerSchema.pre("save", async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) {
     return next();
@@ -28,7 +29,7 @@ ownerSchema.pre("save", async function (next) {
   } catch (error) {
     next(error);
   }
-});
+});*/
 // Hash password before saving
 /*ownerSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
@@ -36,9 +37,9 @@ ownerSchema.pre("save", async function (next) {
   }
   next();
 });*/
-ownerSchema.methods.comparePassword = async function (enteredPassword) {
+/*ownerSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
-};
+};*/
 
 const Owner = mongoose.model("Owner", ownerSchema);
 module.exports = Owner;
