@@ -35,7 +35,7 @@ const upload = multer({
 });
 
 router.post("/send-verification", OwnerController.sendVerification);
-
+router.post("/verify-email/:token", OwnerController.verifyEmail);
 
 // Owner Signup Route
 router.post("/owner-signup", upload.single("licenseFile"), OwnerController.ownerSignup);

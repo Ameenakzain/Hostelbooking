@@ -36,6 +36,10 @@ const OwnerLogin = () => {
       console.log("✅ Login successful:", response.data);
       localStorage.setItem("ownerToken", response.data.token);
       localStorage.setItem("ownerId", response.data.ownerId);
+
+       // Log the token to check if it's stored
+       console.log("🔑 Token saved to localStorage:", localStorage.getItem("ownerToken"));
+
       
       await axios.post("http://localhost:5000/api/owners/send-verification", {
         email: cleanedEmail,

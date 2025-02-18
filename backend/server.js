@@ -18,12 +18,13 @@ app.use(cors({
   credentials: true
 }));
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 //app.use("/uploads", express.static(uploadDir));
 
 
 // ✅ Ensure "uploads" folder exists
 const uploadDir = path.join(__dirname, "uploads");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
   console.log("📂 'uploads' folder created.");
@@ -39,6 +40,13 @@ app.use("/api/owners", OwnerRoutes); // Mount the routes for handling owner-rela
 
 const userRoutes = require("./routes/userRoutes"); // Ensure this path is correct
 app.use("/api/users", userRoutes); // Mount user-related routes
+
+const hostelRoutes = require("./routes/hostelRoutes"); // Add the hostel routes
+app.use("/api/hostels", hostelRoutes);  // Add this line for hostel-related routes
+
+const authRoutes = require("./routes/authRoutes"); // Import auth routes
+app.use("/api/auth", authRoutes); // Mount authentication routes
+
 
 // 📌 Sample Route
 app.get("/", async (req, res) => {

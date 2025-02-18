@@ -1,13 +1,14 @@
 const express = require("express");
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
-//const { userSignup } = require("../controllers/userController"); // Import the userSignup function
+const { userSignup, userLogin } = require("../controllers/userController");
+
 const router = express.Router();
 //const userController = require("../controllers/userController");
 
 // POST route to register a user
 
-router.post("/signup", async (req, res) => {
+/*router.post("/signup", async (req, res) => {
   console.log("Login route hit");
   try {
     const { name, email,phone, password } = req.body;
@@ -66,17 +67,12 @@ router.post("/login", async (req, res) => {
     console.error("Error in /login route:", error);
     res.status(500).json({ message: "Server error" });
   }
-});
+});*/
+router.post("/signup", userSignup);
+router.post("/login", userLogin);
 
 
-    /*try {
-      // Call the userLogin function from the controller
-      await userLogin(req, res);
-    } catch (error) {
-      //console.error("Error logging in:", error);
-      //res.status(500).json({ message: "Server error" });
-    }
-  });*/
+
  
   
 

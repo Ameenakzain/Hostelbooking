@@ -1,0 +1,69 @@
+.add-hostel-form {
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    margin-top: 50px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .add-hostel-form h2 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .add-hostel-form form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .add-hostel-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  .add-hostel-form input,
+  .add-hostel-form textarea,
+  .add-hostel-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .add-hostel-form input[type="file"] {
+    border: none;
+  }
+  
+  .add-hostel-form button {
+    width: 100px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .add-hostel-form .edit-btn {
+    background-color: #007bff;
+    color: white;
+    margin-right: 10px;
+  }
+  
+  .add-hostel-form .submit-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .add-hostel-form .buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  

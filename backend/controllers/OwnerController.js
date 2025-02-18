@@ -10,8 +10,8 @@ const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
   service: "gmail", // Use your email provider
   auth: {
-    user: process.env.EMAIL_ADDRESS, // Your email address
-    pass: process.env.EMAIL_PASSWORD, // Your email password or app password
+    user: process.env.EMAIL_USER, // Your email address
+    pass: process.env.EMAIL_PASS, // Your email password or app password
   },
 });
 
@@ -127,7 +127,31 @@ exports.confirmEmail = async (req, res) => {
   res.status(500).json({ message: "Invalid or expired token." });
   }
   };
-  
+
+  // 📌 Verify Email
+exports.verifyEmail = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    // Verify the token using jwt.verify
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Find the owner by the decoded ID (from the token)
+    const owner = await Owner.findById(decoded.id);
+    if (!owner) {
+      return res.status(404).json({ message: "Owner not found." });
+    }
+
+    // Update the owner's email verification status
+    owner.isEmailVerified = true; // Assuming you have an isEmailVerified field in the Owner model
+    await owner.save();
+
+    res.status(200).json({ message: "Email verified successfully!" });
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(400).json({ message: "Invalid or expired token" });
+  }
+};
 
 
 // 📌 Owner Login
