@@ -39,12 +39,25 @@ const AddHostel = () => {
     const formData = new FormData();
     formData.append("name", hostelDetails.name);
     formData.append("location", hostelDetails.location);
-    formData.append("amenities", JSON.stringify(amenitiesArray));
-
-    // Append images to FormData
-    hostelDetails.images.forEach((image) => {
-        formData.append("images", image);
+    amenitiesArray.forEach((amenity, index) => {
+      formData.append(`amenities[${index}]`, amenity);
     });
+
+    // Ensure images exist and are appended correctly
+  if (hostelDetails.images.length > 0) {
+    hostelDetails.images.forEach((image) => {
+      formData.append("images", image);
+    });
+  } else {
+    console.error("No images selected");
+    setErrorMessage("Please select at least one image.");
+    return;
+  }
+
+    console.log("FormData before sending:");
+    for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]); // Logs key-value pairs
+    }
 
     // Get the token from localStorage (assuming it's stored there after login)
     const token = localStorage.getItem("ownerToken");
@@ -68,6 +81,7 @@ const AddHostel = () => {
 
       if (response.ok) {
         console.log("Hostel added successfully:", data);
+        setSuccessMessage("Hostel added successfully!");
         setTimeout(() => navigate("/owner-dashboard", { state: { newHostel: data } }), 2000);
         // Redirect to Owner Dashboard after adding the hostel
         //navigate("/owner-dashboard", { state: { newHostel: data.hostel } });
@@ -83,7 +97,7 @@ const AddHostel = () => {
   return (
     <div className="add-hostel-form">
       <h2>Add New Hostel</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div>
           <label>Name of Hostel</label>
           <input

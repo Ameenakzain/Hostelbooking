@@ -42,7 +42,7 @@ const Homepage = () => {
           <h1>Find your perfect stay!</h1>
           <p>SEARCH AND BOOK HOSTELS WITH EASE</p>
           <div className="search-bar">
-            <input type="text" placeholder="Search for hostels near you" />
+            <input type="text" placeholder="Search for hostels" />
             <button className="search-btn">
               <i className="fas fa-search"></i>
             </button>

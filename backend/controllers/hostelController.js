@@ -22,27 +22,50 @@ const storage = multer.diskStorage({
 exports.addHostel = async (req, res) => {
   upload(req, res, async (err) => {
       if (err) {
-          return res.status(500).json({ message: "Image upload failed", error: err });
+        console.error("Multer Error:", err);
+        return res.status(500).json({ message: "Image upload failed", error: err });
       }
+
+      console.log("Request Body:", req.body); 
+      console.log("Uploaded Files:", req.files);
+      console.log("🔑 Extracted Owner ID:", req.ownerId);
+ 
+
 
       const { name, location, amenities } = req.body;
       const imagePaths = req.files ? req.files.map(file => file.path) : [];
+      
+      if (!name || !location) {
+        console.error("❌ Missing required fields (name/location).");
+        return res.status(400).json({ message: "Name and location are required." });
+      }
+
       if (imagePaths.length === 0) {
+        console.error("❌ No images uploaded.");
+
         return res.status(400).json({ message: "No images were uploaded." });
+    }
+
+    if (!req.ownerId) {
+      console.error("❌ Unauthorized: Owner ID missing.");
+      return res.status(403).json({ message: "Unauthorized: Owner ID missing." });
     }
 
       try {
           const newHostel = new Hostel({
               name,
               location,
-              amenities,
+              amenities: Array.isArray(amenities) ? amenities : amenities.split(","),
               images: imagePaths, // Store uploaded image paths
               ownerId: req.ownerId, // Get ownerId from the verified token
           });
 
-          await newHostel.save();
-          res.status(201).json(newHostel);
+          const savedHostel = await newHostel.save();
+          console.log("✅ Hostel Saved Successfully:", savedHostel);
+          res.status(201).json({ message: "✅ Hostel added successfully!", hostel: savedHostel });
+
       } catch (error) {
+          console.error("Database Save Error:", error);
           res.status(500).json({ message: "Error adding hostel", error });
       }
   });

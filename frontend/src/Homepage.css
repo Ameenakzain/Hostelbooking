@@ -188,19 +188,22 @@ body {
 .search-bar {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  align-items: center;
+  width: 100%; /* Ensure it takes full width */
+  margin: 0 auto; /* Center it */
 }
 
 .search-bar input {
   padding: 0.8rem;
-  width: 50%;
+  width: 40%; /* Adjust width as needed */
+  max-width: 500px; /* Limit width for better responsiveness */
   border: none;
   border-radius: 5px 0 0 5px;
   font-size: 1rem;
 }
 
 .search-bar .search-btn {
-  padding: 0.8rem;
+  padding: 1.3rem;
   background-color: #ff4b5c;
   color: white;
   border: none;

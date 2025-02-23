@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const verifyOwner = (req, res, next) => {
 const token = req.header("Authorization") ? req.header("Authorization").replace("Bearer ", "") : null;
+console.log("Received Token:", token);
   if (!token) {
     return res.status(401).json({ message: "No token, authorization denied" });
     
@@ -12,6 +13,7 @@ const token = req.header("Authorization") ? req.header("Authorization").replace(
     req.ownerId = decoded.id;  // Attach owner ID to request object
     next();  // Proceed to the next middleware/route handler
   } catch (error) {
+    console.error("Token verification error:", error);
     res.status(401).json({ message: "Token is not valid" });
   }
 };

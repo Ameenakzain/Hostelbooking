@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/OwnerDashboard.css"; // Import CSS
+import "../styles/OwnerDashboard.css";
 
 const OwnerDashboard = () => {
   const navigate = useNavigate();
@@ -11,27 +11,27 @@ const OwnerDashboard = () => {
   }, []);
 
   const fetchHostels = async () => {
-    const token = localStorage.getItem("ownerToken");
-
+    console.log("📢 Fetching hostels with token:", token);
+    //const token = localStorage.getItem("ownerToken");
     try {
       const response = await fetch("http://localhost:5000/api/hostels/owner-hostels", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await response.json();
       if (response.ok) {
-        setHostels(data.hostels);
+        setHostels(Array.isArray(data.hostels) ? data.hostels : []);// newly updated 
       } else {
         console.error("Failed to fetch hostels:", data.message);
+        setHostels([]);//new 
       }
     } catch (error) {
       console.error("Error fetching hostels:", error);
+      setHostels([]);//new
     }
   };
-
 
   const handleLogout = () => {
     localStorage.removeItem("ownerToken");
@@ -39,9 +39,27 @@ const OwnerDashboard = () => {
     navigate("/owner-login");
   };
 
-  // Navigate to AddHostel page
   const handleAddHostel = () => {
     navigate("/add-hostel");
+  };
+
+  const handleEditHostel = (id) => {
+    navigate(`/edit-hostel/${id}`);
+  };
+
+  const handleDeleteHostel = async (id) => {
+    const token = localStorage.getItem("ownerToken");
+    try {
+      await fetch(`http://localhost:5000/api/hostels/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchHostels();
+    } catch (error) {
+      console.error("Error deleting hostel:", error);
+    }
   };
 
   return (
@@ -63,7 +81,7 @@ const OwnerDashboard = () => {
           </div>
         </nav>
       </header>
-
+      
       <main className="dashboard-main">
         <section className="hostels-section">
           <h3>Your Hostels</h3>
@@ -73,7 +91,7 @@ const OwnerDashboard = () => {
                 <div className="hostel-card" key={hostel._id}>
                   <img src={hostel.imageUrl} alt={hostel.name} />
                   <p>{hostel.name}</p>
-                  <p>{hostel.location}</p>
+                  <p>Location: {hostel.location}</p>
                 </div>
               ))
             ) : (
@@ -83,6 +101,57 @@ const OwnerDashboard = () => {
           <button className="add-hostel-btn" onClick={handleAddHostel}>
             ADD HOSTEL
           </button>
+        </section>
+
+        <section className="bookings-ratings">
+          <h3>Bookings & Ratings</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Hostel Name</th>
+                <th>Active</th>
+                <th>Hold</th>
+                <th>Average Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hostels.map((hostel) => (
+                <tr key={hostel._id}>
+                  <td>{hostel.name}</td>
+                  <td>{hostel.activeBookings}</td>
+                  <td>{hostel.holdBookings}</td>
+                  <td>{hostel.averageRating}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="manage-hostels">
+          <h3>Manage Hostels</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Hostel Name</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hostels.map((hostel) => (
+                <tr key={hostel._id}>
+                  <td>{hostel.name}</td>
+                  <td>{hostel.location}</td>
+                  <td>{hostel.status}</td>
+                  <td>
+                    <button onClick={() => handleEditHostel(hostel._id)}>Edit</button>
+                    <button onClick={() => handleDeleteHostel(hostel._id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
       </main>
     </div>
