@@ -1,5 +1,6 @@
 require("dotenv").config();
 const Owner = require("../models/Owner");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -223,43 +224,80 @@ exports.deleteOwner = async (req, res) => {
   }
 };
 
-// 📌 Forgot Password (without email)
+// Forgot Password (Updated Version)
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const cleanedEmail = email.trim().toLowerCase();
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
-    const owner = await Owner.findOne({ email: cleanedEmail });
+    const owner = await Owner.findOne({ email });
     if (!owner) return res.status(404).json({ message: "Owner not found with this email" });
 
-    // Instead of sending an email, return a reset token
-    const resetToken = jwt.sign({ id: owner._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = await bcrypt.hash(resetToken, 10);
 
-    res.status(200).json({ message: "Use this token to reset password", resetToken });
+    owner.resetToken = hashedToken;
+    owner.resetTokenExpires = Date.now() + 15 * 60 * 1000;
+    await owner.save();
+
+    // Reset password link
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: owner.email,
+      subject: "Reset Your Password",
+      html: `<p>Click <a href="${resetLink}">here</a> to reset your password. The link expires in 15 minutes.</p>`,
+    });
+
+    res.status(200).json({ message: "Reset link sent to your email." });
   } catch (error) {
-    console.error("Error in forgotPassword:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Forgot Password Error:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 
-// 📌 Reset Password
+// Reset Password (Updated Version)
 exports.resetPassword = async (req, res) => {
   try {
-    const { resetToken, newPassword } = req.body;
+    const { resetToken, newPassword, confirmPassword } = req.body;
 
-    // Verify token
-    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-    const owner = await Owner.findById(decoded.id);
+    if (!resetToken || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
 
-    if (!owner) return res.status(404).json({ message: "Owner not found." });
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match." });
+    }
 
-    // Hash the new password before saving
-    owner.password = await bcrypt.hash(newPassword.trim(), 10);
+    // Verify the JWT reset token
+    let decoded;
+    try {
+      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    const owner = await Owner.findOne({
+      _id: decoded.id, // Token should contain the owner's ID
+      resetToken, // Ensure resetToken matches
+      resetTokenExpires: { $gt: Date.now() } // Token should not be expired
+    });
+    if (!owner) {
+      return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    owner.password = hashedPassword;
+    owner.resetToken = null;
+    owner.resetTokenExpires = null;
     await owner.save();
 
-    res.json({ message: "Password has been successfully reset." });
+    res.status(200).json({ message: "Password reset successful. You can now log in." });
   } catch (error) {
-    console.error("Error resetting password:", error);
-    res.status(500).json({ message: "Invalid or expired token." });
+    console.error("Reset Password Error:", error);
+    res.status(500).json({ message: "Server error. Please try again." });
   }
 };

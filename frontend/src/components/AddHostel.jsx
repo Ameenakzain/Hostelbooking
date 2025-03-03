@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/AddHostel.css";
@@ -7,6 +8,8 @@ const AddHostel = () => {
   const [hostelDetails, setHostelDetails] = useState({
     name: "",
     location: "",
+    price: "",  // Added price field
+    type: "boys", // Added hostel type with default value
     amenities: "",
     images: [],
   });
@@ -35,10 +38,20 @@ const AddHostel = () => {
 
     const amenitiesArray = hostelDetails.amenities.split(",").map((a) => a.trim());
 
+    const ownerId = localStorage.getItem("ownerId"); 
+    if (!ownerId) {
+        setErrorMessage("Owner ID is missing. Please log in again.");
+        return;
+    }
+
+
     // Create a FormData object to send the data, including files
     const formData = new FormData();
     formData.append("name", hostelDetails.name);
     formData.append("location", hostelDetails.location);
+    formData.append("price", hostelDetails.price); // Added price
+    formData.append("type", hostelDetails.type); // Added hostel type
+    formData.append("ownerId", ownerId);
     amenitiesArray.forEach((amenity, index) => {
       formData.append(`amenities[${index}]`, amenity);
     });
@@ -117,6 +130,24 @@ const AddHostel = () => {
             onChange={handleChange}
             required
           />
+        </div>
+        <div>
+          <label>Price (per month)</label>
+          <input
+            type="number"
+            name="price"
+            value={hostelDetails.price}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div>
+          <label>Hostel Type</label>
+          <select name="type" value={hostelDetails.type} onChange={handleChange} required>
+            <option value="boys">Boys</option>
+            <option value="girls">Girls</option>
+          </select>
         </div>
         <div>
           <label>Amenities</label>

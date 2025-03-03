@@ -23,6 +23,7 @@ function App() {
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/owner-signup" element={<OwnerRegister />} />
         <Route path="/owner-dashboard" element={<OwnerDashboard />} />
         <Route path="/add-hostel" element={<AddHostel />} />

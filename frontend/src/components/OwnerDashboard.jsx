@@ -11,8 +11,14 @@ const OwnerDashboard = () => {
   }, []);
 
   const fetchHostels = async () => {
+    
+    const token = localStorage.getItem("ownerToken");
+    if (!token) {
+      console.error("❌ No token found, user might not be logged in.");
+      return;
+    }
+
     console.log("📢 Fetching hostels with token:", token);
-    //const token = localStorage.getItem("ownerToken");
     try {
       const response = await fetch("http://localhost:5000/api/hostels/owner-hostels", {
         method: "GET",
@@ -22,7 +28,7 @@ const OwnerDashboard = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setHostels(Array.isArray(data.hostels) ? data.hostels : []);// newly updated 
+        setHostels(Array.isArray(data) ? data : []);// newly updated 
       } else {
         console.error("Failed to fetch hostels:", data.message);
         setHostels([]);//new 
@@ -89,7 +95,7 @@ const OwnerDashboard = () => {
             {hostels.length > 0 ? (
               hostels.map((hostel) => (
                 <div className="hostel-card" key={hostel._id}>
-                  <img src={hostel.imageUrl} alt={hostel.name} />
+                  <img src={`http://localhost:5000/uploads/${hostel.images[0]}`} alt={hostel.name} />
                   <p>{hostel.name}</p>
                   <p>Location: {hostel.location}</p>
                 </div>
@@ -132,6 +138,7 @@ const OwnerDashboard = () => {
           <table>
             <thead>
               <tr>
+                <th>Image</th>
                 <th>Hostel Name</th>
                 <th>Location</th>
                 <th>Status</th>

@@ -101,6 +101,9 @@
 }
 
 .hostel-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
   background: #ffffff;
   padding: 15px;
   border-radius: 8px;
@@ -109,11 +112,43 @@
   text-align: center;
 }
 
+/* Make hostel name bigger and bold 
+.hostel-card p:first-of-type {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;*/
+
+
+/* Ensure location appears slightly smaller 
+.hostel-card p:nth-of-type(2) {
+  font-size: 1rem;
+  color: gray;*/
+
+
+
 .hostel-card img {
-  width: 100%;
+  width: 120%;
   height: 120px;
   object-fit: cover;
   border-radius: 5px;
+}
+
+.hostel-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the text */
+  text-align: center;
+}
+
+.hostel-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.hostel-location {
+  font-size: 1rem;
+  color: gray;
+  margin-top: 5px;
 }
 
 .add-hostel-btn {
@@ -151,11 +186,19 @@ th {
   color: white;
 }
 
+.manage-hostels table img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
 td button {
   padding: 5px 10px;
   border: none;
   cursor: pointer;
   border-radius: 4px;
+  margin-right: 10px;
 }
 
 td button:first-child {

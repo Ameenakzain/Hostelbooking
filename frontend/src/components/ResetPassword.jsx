@@ -1,20 +1,36 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import "../styles/ForgotPassword.css"; // Use the same CSS file
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import "../styles/ResetPassword.css"; // Use the same CSS file
 
 const ResetPassword = () => {
+  const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Extract email/phone from query params or state (passed from ForgotPassword)
-  const emailOrPhone = location.state?.emailOrPhone;
+  useEffect(() => {
+    console.log("Extracted token:", token);
+    if (!token) {
+      setError("Invalid or expired reset link.");
+    }
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    if (!newPassword.trim() || !confirmPassword.trim()) {
+      setError("All fields are required.");
+      return;
+    }
+  
+    // Ensure token exists
+    if (!token) {
+      setError("Invalid or expired reset link.");
+      return;
+    }
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
@@ -24,40 +40,35 @@ const ResetPassword = () => {
     try {
       const response = await fetch("http://localhost:5000/api/owners/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          emailOrPhone,
-          newPassword,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resetToken: token, newPassword, confirmPassword }),
+
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || "Failed to reset the password. Please try again.");
+        setError(data.message || "Failed to reset the password.");
         return;
       }
 
-      const data = await response.json();
-      setMessage(data.message || "Password successfully reset.");
+      setMessage("Password successfully reset. Redirecting to login...");
       setError("");
-
-      // Redirect to login page after successful reset
       setTimeout(() => navigate("/owner-login"), 3000);
     } catch (err) {
       console.error("Error resetting password:", err);
-      setError("An error occurred. Please try again.");
+      setError(err.message || "An error occurred. Please try again.");
     }
   };
 
+
   return (
-    <div className="forgot-password-container">
+    <div className="reset-password-container">
       <header className="header">
         <h1>BOOKmyHOSTEL</h1>
       </header>
 
-      <div className="forgot-password-form">
+      <div className="reset-password-form">
         <h2>Reset your password</h2>
         <p>Enter your new password below.</p>
 

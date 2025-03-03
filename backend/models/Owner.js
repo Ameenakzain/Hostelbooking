@@ -10,6 +10,8 @@ const ownerSchema = new mongoose.Schema({
   hostelAddress: { type: String, required: true },
   licenseFile: { type: String } ,// Store file path
   isEmailConfirmed: { type: Boolean, default: false },
+  resetToken: { type: String },
+  resetTokenExpires: { type: Date },
 });
 // Pre-save hook to hash the password before saving
 /*ownerSchema.pre("save", async function (next) {

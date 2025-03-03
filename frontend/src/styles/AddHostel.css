@@ -66,4 +66,8 @@
     justify-content: center;
     margin-top: 10px;
   }
+  .add-hostel-form select {
+    background: white;
+    color: #333;
+}
   
