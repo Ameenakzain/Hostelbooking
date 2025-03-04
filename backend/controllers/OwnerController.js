@@ -235,9 +235,9 @@ exports.forgotPassword = async (req, res) => {
 
     // Generate a reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const hashedToken = await bcrypt.hash(resetToken, 10);
+    //const hashedToken = await bcrypt.hash(resetToken, 10);
 
-    owner.resetToken = hashedToken;
+    owner.resetToken = resetToken;
     owner.resetTokenExpires = Date.now() + 15 * 60 * 1000;
     await owner.save();
 
@@ -261,39 +261,35 @@ exports.forgotPassword = async (req, res) => {
 // Reset Password (Updated Version)
 exports.resetPassword = async (req, res) => {
   try {
-    const { resetToken, newPassword, confirmPassword } = req.body;
+    console.log("🛠️ Reset password request received.");
+    console.log("Request Body:", req.body);
 
-    if (!resetToken || !newPassword || !confirmPassword) {
+    const { resetToken, newPassword} = req.body;
+
+    if (!resetToken || !newPassword) {
       return res.status(400).json({ message: "All fields are required." });
     }
+    console.log("🔍 Searching for owner with token:", resetToken);
 
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match." });
-    }
-
-    // Verify the JWT reset token
-    let decoded;
-    try {
-      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-    } catch (error) {
-      return res.status(400).json({ message: "Invalid or expired token." });
-    }
-
+    // Find owner by resetToken and check expiration
     const owner = await Owner.findOne({
-      _id: decoded.id, // Token should contain the owner's ID
-      resetToken, // Ensure resetToken matches
-      resetTokenExpires: { $gt: Date.now() } // Token should not be expired
+      resetToken,
+      resetTokenExpires: { $gt: Date.now() }, // Ensure token is not expired
     });
+    console.log("🧑 Owner found:", owner);
+
     if (!owner) {
       return res.status(400).json({ message: "Invalid or expired token." });
     }
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    console.log("🔑 Hashing new password.");
+    const hashedPassword = await bcrypt.hash(newPassword.trim(), 10);
     owner.password = hashedPassword;
     owner.resetToken = null;
     owner.resetTokenExpires = null;
     await owner.save();
+    console.log("✅ Password reset successful.");
 
     res.status(200).json({ message: "Password reset successful. You can now log in." });
   } catch (error) {

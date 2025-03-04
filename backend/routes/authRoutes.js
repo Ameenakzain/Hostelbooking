@@ -17,20 +17,6 @@ router.get("/verify-email/:token", async (req, res) => {
             return res.status(404).json({ message: "owner not found" });
         }
 
-        /*if (user.isVerified) {
-            return res.status(400).json({ message: "Email already verified" });
-        }
-
-        // Update user verification status
-        user.isVerified = true;
-        await user.save();
-
-        res.json({ message: "Email verified successfully!" });
-    } catch (error) {
-        console.error("Verification Error:", error.message);
-        res.status(400).json({ message: "Invalid or expired token" });
-    }
-});*/
 if (owner) {
     if (owner.isVerified) {
         return res.status(400).json({ message: "Owner email already verified" });

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/ResetPassword.css"; // Use the same CSS file
+//import { useLocation } from "react-router-dom";
 
 const ResetPassword = () => {
-  const { token } = useParams();
+  const { token } = useParams();  // Extract the token from the URL
+  const resetToken = token;
+  //const { resetToken } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -11,11 +14,11 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Extracted token:", token);
-    if (!token) {
+    console.log("Extracted token:", resetToken);
+    if (!resetToken) {
       setError("Invalid or expired reset link.");
     }
-  }, [token]);
+  }, [resetToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +30,7 @@ const ResetPassword = () => {
     }
   
     // Ensure token exists
-    if (!token) {
+    if (!resetToken) {
       setError("Invalid or expired reset link.");
       return;
     }
@@ -41,7 +44,7 @@ const ResetPassword = () => {
       const response = await fetch("http://localhost:5000/api/owners/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resetToken: token, newPassword, confirmPassword }),
+        body: JSON.stringify({ resetToken, newPassword }),
 
       });
 

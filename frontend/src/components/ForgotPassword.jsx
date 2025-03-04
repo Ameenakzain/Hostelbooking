@@ -28,7 +28,10 @@ const ForgotPassword = () => {
       }
       setMessage(data.message || "Reset instructions sent to your email");
       setError("");
-      navigate("/reset-password", { state: { email} });
+      if (data.resetToken) {
+        localStorage.setItem("resetToken", data.resetToken);
+        navigate(`/reset-password/${data.resetToken}`);
+      }
     } catch (err) {
       console.error("Error sending reset instructions:", err);
       setError("An error occurred. Please try again.");
