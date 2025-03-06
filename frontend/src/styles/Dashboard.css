@@ -1,0 +1,123 @@
+/* GENERAL STYLES */
+.dashboard-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  /* HEADER */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #d81b60;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    position: relative;
+  }
+  
+  /* WELCOME TEXT */
+  .welcome-text {
+    font-size: 20px;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  
+  /* PROFILE MENU (3 LINES BUTTON) */
+  .profile-menu {
+    position: relative;
+  }
+  
+  .profile-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    margin-right: 20px; /* Creates space between header and button */
+  }
+  
+  /* DROPDOWN MENU */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 40px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    width: 150px;
+    text-align: left;
+  }
+  
+  /* SHOW DROPDOWN WHEN ACTIVE */
+  .profile-menu.active .dropdown-content {
+    display: block;
+  }
+  
+  .dropdown-content a {
+    display: block;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* SEARCH BAR */
+  .search-section {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .search-bar {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 15px;
+    border: 2px solid #0f0909;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  
+  .search-bar:focus {
+    border-color: #d81b60;
+  }
+  
+  /* SECTIONS */
+  .recent-bookings, .saved-hostels, .notifications {
+    margin: 20px 0;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  /* BOOKING & HOSTEL CARDS */
+  .booking-card, .hostel-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* CHAT BUTTON */
+  .chat-button {
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    cursor: pointer;
+  }

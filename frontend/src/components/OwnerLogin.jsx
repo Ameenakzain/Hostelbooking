@@ -14,7 +14,6 @@ const OwnerLoginPage = () => {
     const trimmedPassword = password.trim();
     console.log("Sending Data:", { email: trimmedEmail, password: trimmedPassword });
     
-
     try {
       const response = await fetch("http://localhost:5000/api/owners/login", {
         method: "POST",
@@ -22,29 +21,30 @@ const OwnerLoginPage = () => {
         body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword }),
       });
 
+      // Call .json() only once and store the response data
       const data = await response.json();
       console.log("🔹 Response Data:", data);
 
       if (response.ok) {
-        const data = await response.json();
         alert("Login successful!");
         console.log("Logged-in user:", data);
+
+        if (!data.token) {
+          setError("Login successful, but no token received.");
+          return;
+        }
+
+        // Store token and owner ID in local storage
+        localStorage.setItem("ownerToken", data.token);
+        localStorage.setItem("ownerId", data.ownerId);
+
+        // Redirect to Owner Dashboard
+        navigate("/owner-dashboard");
+
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || "Login failed");
+        alert(data.message || "Login failed");
+        setError(data.message || "Login failed");
       }
-
-      if (!data.token) {
-        setError("Login successful, but no token received.");
-        return;
-      }
-
-      // Store token and owner ID in local storage
-      localStorage.setItem("ownerToken", data.token);
-      localStorage.setItem("ownerId", data.ownerId);
-
-      // Redirect to Owner Dashboard
-      navigate("/owner-dashboard");
 
     } catch (error) {
       console.error("❌ Error:", error);
