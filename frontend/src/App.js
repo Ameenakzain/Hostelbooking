@@ -5,13 +5,15 @@ import Login from './components/Login.jsx';
 import OwnerLogin from './components/OwnerLogin.jsx';
 import OwnerRegister from './components/OwnerRegister.jsx';
 import OwnerDashboard from './components/OwnerDashboard.jsx';
-import EditHostel from './components/EditHostel';
 import AddHostel from "./components/AddHostel.jsx";
 import UserDashboard from './components/UserDashboard.jsx';
 import ForgotPassword from "./components/ForgotPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
 //import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import VerifyEmail from "./VerifyEmail";  // Your email verification page
+import HostelDetails from "./components/HostelDetails";
+import BookingSuccess from "./components/BookingSuccess"; // ✅ import it
+
 
 function App() {
   return (
@@ -27,9 +29,11 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/owner-signup" element={<OwnerRegister />} />
         <Route path="/owner-dashboard" element={<OwnerDashboard />} />
-        <Route path="/edit-hostel/:id" element={<EditHostel />} />
         <Route path="/add-hostel" element={<AddHostel />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/hostel/:id" element={<HostelDetails />} />
+        <Route path="/booking-success" element={<BookingSuccess />} />
+
       </Routes>
     </Router>
   );
