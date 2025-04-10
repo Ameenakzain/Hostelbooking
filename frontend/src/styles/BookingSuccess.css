@@ -1,0 +1,20 @@
+.success-container {
+    text-align: center;
+    margin-top: 100px;
+    padding: 20px;
+  }
+  
+  .success-container h2 {
+    color: green;
+  }
+  
+  .success-container button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
