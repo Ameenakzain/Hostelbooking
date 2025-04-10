@@ -95,40 +95,24 @@
 .hostel-cards {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  max-height: 300px;
-  overflow-y: auto;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
 }
 
 .hostel-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  width: 320px;
   background: #ffffff;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  width: 200px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
+  overflow: hidden;
 }
 
-/* Make hostel name bigger and bold 
-.hostel-card p:first-of-type {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 5px;*/
-
-
-/* Ensure location appears slightly smaller 
-.hostel-card p:nth-of-type(2) {
-  font-size: 1rem;
-  color: gray;*/
-
-
-
 .hostel-card img {
-  width: 120%;
-  height: 120px;
+  width: 100%;
+  height: 150px;
   object-fit: cover;
   border-radius: 5px;
 }
@@ -136,13 +120,14 @@
 .hostel-info {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center the text */
+  align-items: center;
   text-align: center;
 }
 
 .hostel-name {
   font-size: 1.2rem;
   font-weight: bold;
+  margin: 10px 0;
 }
 
 .hostel-location {
@@ -213,4 +198,12 @@ td button:last-child {
 
 td button:hover {
   opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hostel-cards {
+    flex-direction: column;
+    align-items: center;
+  }
 }

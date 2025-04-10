@@ -10,7 +10,7 @@ console.log("Received Token:", token);
   }*/
     const verifyOwner = (req, res, next) => {
       const authHeader = req.header("Authorization");
-    
+      console.log("Authorization Header:", authHeader);  
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ message: "No token provided, authorization denied" });
       }
@@ -27,5 +27,28 @@ console.log("Received Token:", token);
     res.status(401).json({ message: "Token is not valid" });
   }
 };
+// Middleware to verify users
+const verifyUser = (req, res, next) => {
+  const authHeader = req.header("Authorization");
 
-module.exports = { verifyOwner };
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided, authorization denied" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Extract token after "Bearer "
+  console.log("Received User Token:", token);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    req.userId = decoded.id; // Attach user ID to request
+    console.log("Decoded User ID:", req.userId);
+    next();
+  } catch (error) {
+    console.error("User Token verification error:", error);
+    res.status(401).json({ message: "Token is not valid" });
+  }
+};
+
+module.exports = { verifyOwner, verifyUser };
+
+

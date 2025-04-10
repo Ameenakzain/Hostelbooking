@@ -1,18 +1,22 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/AddHostel.css";
-
 
 const AddHostel = () => {
   const [hostelDetails, setHostelDetails] = useState({
     name: "",
     location: "",
-    price: "",  // Added price field
-    type: "boys", // Added hostel type with default value
+    price: "",
+    type: "boys",
     amenities: "",
     images: [],
   });
+
+  // ✅ New state for available rooms
+  const [availableRooms, setAvailableRooms] = useState([
+    { roomType: "", count: 0 },
+  ]);
+
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -29,77 +33,86 @@ const AddHostel = () => {
   const handleFileChange = (e) => {
     setHostelDetails((prevState) => ({
       ...prevState,
-      images: Array.from(e.target.files), 
+      images: Array.from(e.target.files),
     }));
+  };
+
+  // ✅ New handler for room input changes
+  const handleRoomChange = (index, e) => {
+    const updatedRooms = [...availableRooms];
+    updatedRooms[index][e.target.name] =
+      e.target.name === "count" ? parseInt(e.target.value) : e.target.value;
+    setAvailableRooms(updatedRooms);
+  };
+
+  // ✅ Add new room input block
+  const addRoomField = () => {
+    setAvailableRooms([...availableRooms, { roomType: "", count: 0 }]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const amenitiesArray = hostelDetails.amenities.split(",").map((a) => a.trim());
+    const amenitiesArray = hostelDetails.amenities
+      .split(",")
+      .map((a) => a.trim());
 
-    const ownerId = localStorage.getItem("ownerId"); 
+    const ownerId = localStorage.getItem("ownerId");
     if (!ownerId) {
-        setErrorMessage("Owner ID is missing. Please log in again.");
-        return;
+      setErrorMessage("Owner ID is missing. Please log in again.");
+      return;
     }
 
-
-    // Create a FormData object to send the data, including files
     const formData = new FormData();
     formData.append("name", hostelDetails.name);
     formData.append("location", hostelDetails.location);
-    formData.append("price", hostelDetails.price); // Added price
-    formData.append("type", hostelDetails.type); // Added hostel type
+    formData.append("price", hostelDetails.price);
+    formData.append("type", hostelDetails.type);
     formData.append("ownerId", ownerId);
+
     amenitiesArray.forEach((amenity, index) => {
       formData.append(`amenities[${index}]`, amenity);
     });
 
-    // Ensure images exist and are appended correctly
-  if (hostelDetails.images.length > 0) {
-    hostelDetails.images.forEach((image) => {
-      formData.append("images", image);
-    });
-  } else {
-    console.error("No images selected");
-    setErrorMessage("Please select at least one image.");
-    return;
-  }
+    // ✅ Append available rooms as JSON
+    formData.append("availableRooms", JSON.stringify(availableRooms));
 
-    console.log("FormData before sending:");
-    for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]); // Logs key-value pairs
+    if (hostelDetails.images.length > 0) {
+      hostelDetails.images.forEach((image) => {
+        formData.append("images", image);
+      });
+    } else {
+      setErrorMessage("Please select at least one image.");
+      return;
     }
 
-    // Get the token from localStorage (assuming it's stored there after login)
     const token = localStorage.getItem("ownerToken");
-    console.log("Token from localStorage:", token);
     if (!token) {
-        setErrorMessage("Authorization token is missing. Please log in.");
-        return;
-      }
+      setErrorMessage("Authorization token is missing. Please log in.");
+      return;
+    }
 
     try {
-      // Send a POST request to add a hostel
-      const response = await fetch("http://localhost:5000/api/hostels/add-hostel", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`, // Include the token for authorization
-        },
-        body: formData, // Send the FormData containing the hostel details
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/hostels/add-hostel",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Hostel added successfully:", data);
         setSuccessMessage("Hostel added successfully!");
-        setTimeout(() => navigate("/owner-dashboard", { state: { newHostel: data } }), 2000);
-        // Redirect to Owner Dashboard after adding the hostel
-        //navigate("/owner-dashboard", { state: { newHostel: data.hostel } });
+        setTimeout(
+          () => navigate("/owner-dashboard", { state: { newHostel: data } }),
+          2000
+        );
       } else {
-        console.error("Failed to add hostel:", data.message);
         setErrorMessage(data.message || "Failed to add hostel.");
       }
     } catch (error) {
@@ -141,10 +154,14 @@ const AddHostel = () => {
             required
           />
         </div>
-
         <div>
           <label>Hostel Type</label>
-          <select name="type" value={hostelDetails.type} onChange={handleChange} required>
+          <select
+            name="type"
+            value={hostelDetails.type}
+            onChange={handleChange}
+            required
+          >
             <option value="boys">Boys</option>
             <option value="girls">Girls</option>
           </select>
@@ -158,6 +175,35 @@ const AddHostel = () => {
             required
           ></textarea>
         </div>
+
+        {/* ✅ Available Rooms */}
+        <div>
+          <label>Available Rooms</label>
+          {availableRooms.map((room, index) => (
+            <div key={index} className="room-input-group">
+              <input
+                type="text"
+                name="roomType"
+                value={room.roomType}
+                onChange={(e) => handleRoomChange(index, e)}
+                placeholder="Room Type (e.g., AC)"
+                required
+              />
+              <input
+                type="number"
+                name="count"
+                value={room.count}
+                onChange={(e) => handleRoomChange(index, e)}
+                placeholder="Number"
+                required
+              />
+            </div>
+          ))}
+          <button type="button" onClick={addRoomField}>
+            Add Room
+          </button>
+        </div>
+
         <div>
           <label>Hostel Images</label>
           <input
@@ -168,9 +214,14 @@ const AddHostel = () => {
             required
           />
         </div>
+
         <div className="buttons">
-          <button type="button" className="edit-btn">Edit</button>
-          <button type="submit" className="submit-btn">Submit</button>
+          <button type="button" className="edit-btn">
+            Edit
+          </button>
+          <button type="submit" className="submit-btn">
+            Submit
+          </button>
         </div>
       </form>
     </div>

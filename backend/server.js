@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",  // ✅ Allow frontend running on 3001 to access the backend
+  origin: process.env.FRONTEND_URL || "http://localhost:3001",  // ✅ Allow frontend running on 3001 to access the backend
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));

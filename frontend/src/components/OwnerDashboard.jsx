@@ -1,17 +1,18 @@
+// ...imports remain unchanged
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/OwnerDashboard.css";
 
 const OwnerDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [hostels, setHostels] = useState([]);
 
   useEffect(() => {
     fetchHostels();
-  }, []);
+  }, [location]);
 
   const fetchHostels = async () => {
-    
     const token = localStorage.getItem("ownerToken");
     if (!token) {
       console.error("❌ No token found, user might not be logged in.");
@@ -24,18 +25,23 @@ const OwnerDashboard = () => {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
       const data = await response.json();
       if (response.ok) {
-        setHostels(Array.isArray(data) ? data : []);// newly updated 
+        setHostels(data.hostels || []);
       } else {
         console.error("Failed to fetch hostels:", data.message);
-        setHostels([]);//new 
+        if (data.message === "Token is not valid") {
+          localStorage.removeItem("ownerToken");
+          navigate("/owner-login");
+        }
+        setHostels([]);
       }
     } catch (error) {
       console.error("Error fetching hostels:", error);
-      setHostels([]);//new
+      setHostels([]);
     }
   };
 
@@ -87,7 +93,7 @@ const OwnerDashboard = () => {
           </div>
         </nav>
       </header>
-      
+
       <main className="dashboard-main">
         <section className="hostels-section">
           <h3>Your Hostels</h3>
@@ -95,9 +101,30 @@ const OwnerDashboard = () => {
             {hostels.length > 0 ? (
               hostels.map((hostel) => (
                 <div className="hostel-card" key={hostel._id}>
-                  <img src={`http://localhost:5000/uploads/${hostel.images[0]}`} alt={hostel.name} />
+                  <img
+                    src={
+                      hostel.images && hostel.images[0]
+                        ? `http://localhost:5000/uploads/${hostel.images[0]}`
+                        : "path/to/fallback/image.jpg"
+                    }
+                    alt={hostel.name}
+                  />
                   <p>{hostel.name}</p>
                   <p>Location: {hostel.location}</p>
+
+                  {/* ✅ Display Available Rooms (new section) */}
+                  {hostel.availableRooms && hostel.availableRooms.length > 0 && (
+                    <div>
+                      <h4>Available Rooms:</h4>
+                      <ul>
+                        {hostel.availableRooms.map((room, index) => (
+                          <li key={index}>
+                            {room.roomType}: {room.count} rooms
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -115,7 +142,7 @@ const OwnerDashboard = () => {
             <thead>
               <tr>
                 <th>Hostel Name</th>
-                <th>Active</th>
+                <th>Available Rooms</th>
                 <th>Hold</th>
                 <th>Average Rating</th>
               </tr>
@@ -124,9 +151,13 @@ const OwnerDashboard = () => {
               {hostels.map((hostel) => (
                 <tr key={hostel._id}>
                   <td>{hostel.name}</td>
-                  <td>{hostel.activeBookings}</td>
-                  <td>{hostel.holdBookings}</td>
-                  <td>{hostel.averageRating}</td>
+                  <td>
+                   {hostel.availableRooms && hostel.availableRooms.length > 0
+                    ? hostel.availableRooms.reduce((sum, room) => sum + (room.count || 0), 0)
+                    : 0}
+                  </td>
+                  <td>{hostel.holdBookings || 0}</td>
+                  <td>{hostel.averageRating || "N/A"}</td>
                 </tr>
               ))}
             </tbody>
@@ -148,9 +179,20 @@ const OwnerDashboard = () => {
             <tbody>
               {hostels.map((hostel) => (
                 <tr key={hostel._id}>
+                  <td>
+                    <img
+                      src={
+                        hostel.images && hostel.images[0]
+                          ? `http://localhost:5000/uploads/${hostel.images[0]}`
+                          : "path/to/fallback/image.jpg"
+                      }
+                      alt={hostel.name}
+                      style={{ width: "50px", height: "50px" }}
+                    />
+                  </td>
                   <td>{hostel.name}</td>
                   <td>{hostel.location}</td>
-                  <td>{hostel.status}</td>
+                  <td>{hostel.status || "N/A"}</td>
                   <td>
                     <button onClick={() => handleEditHostel(hostel._id)}>Edit</button>
                     <button onClick={() => handleDeleteHostel(hostel._id)}>Delete</button>

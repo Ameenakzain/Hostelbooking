@@ -11,26 +11,27 @@ const UserDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   //const menuRef = useRef(null);
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
 
   useEffect(() => {
     // Fetch user's bookings
-    fetch("http://localhost:5000/api/bookings/user-bookings", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setHostels(data.bookings || []));
+    fetchFilteredHostels();
 
-    // Fetch saved hostels
     fetch("http://localhost:5000/api/hostels/saved-hostels", {
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("userToken")}`,
       },
     })
       .then((res) => res.json())
-      .then((data) => setSavedHostels(data.savedHostels || []));
-
+      .then((data) => setSavedHostels(data.savedHostels || []))
+      .catch((err) => console.error("Fetch error:", err));
+    
+  
     // Fetch notifications
     fetch("http://localhost:5000/api/notifications", {
       headers: {
@@ -40,6 +41,19 @@ const UserDashboard = () => {
       .then((res) => res.json())
       .then((data) => setNotifications(data.notifications || []));
   }, []);
+
+  const fetchFilteredHostels = () => {
+    let query = `http://localhost:5000/api/hostels?search=${searchQuery}`;
+    if (selectedType) query += `&type=${selectedType}`;
+    if (maxPrice) query += `&maxPrice=${maxPrice}`;
+    if (locationFilter) query += `&location=${locationFilter}`;
+
+    fetch(query, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setHostels(data.hostels || []));
+  };
 
   return (
     <div className="dashboard-container">
@@ -56,31 +70,37 @@ const UserDashboard = () => {
       </header>
 
       <div className="search-section">
-        <input type="text" className="search-bar" placeholder="Search hostels" />
+        <input type="text" placeholder="Search hostels" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+        <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
+          <option value="">Select Type</option>
+          <option value="boys">Boys Hostel</option>
+          <option value="girls">Girls Hostel</option>
+          <option value="co-ed">Co-ed Hostel</option>
+        </select>
+        <input type="number" placeholder="Max Price (₹)" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+        <input type="text" placeholder="Location" value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)} />
+        <button onClick={fetchFilteredHostels}>Search</button>
       </div>
 
-      {/* Recent Bookings Section */}
-      <section className="recent-bookings">
-        <h3>Your Recent Bookings</h3>
+      {/* Available Hostels Section */}
+      <section className="filtered-hostels">
+        <h3>Available Hostels</h3>
         {hostels.length > 0 ? (
           hostels.map((hostel) => (
-            <div key={hostel._id} className="booking-card">
+            <div key={hostel._id} className="hostel-card">
               <img src={hostel.imageUrl} alt={hostel.name} />
-              <div className="booking-info">
+              <div className="hostel-info">
                 <h4>{hostel.name}</h4>
                 <p>{hostel.address}</p>
-                <p><strong>Check-in date:</strong> {hostel.checkInDate}</p>
-                <p><strong>Fees Paid:</strong> ₹{hostel.feesPaid}</p>
-                <p><strong>Booking Status:</strong> {hostel.status}</p>
-                <div className="booking-actions">
-                  <button>View details</button>
-                  <button>Contact hostel</button>
-                </div>
+                <p><strong>Type:</strong> {hostel.type}</p>
+                <p><strong>Rent:</strong> ₹{hostel.rent}/month</p>
+                <p><strong>Rating:</strong> {hostel.rating} ⭐</p>
+                <button>Book now</button>
               </div>
             </div>
           ))
         ) : (
-          <p>No recent bookings.</p>
+          <p>No hostels found.</p>
         )}
       </section>
 
@@ -96,10 +116,7 @@ const UserDashboard = () => {
                 <p>{hostel.address}</p>
                 <p><strong>Rent:</strong> ₹{hostel.rent}/month</p>
                 <p><strong>Rating:</strong> {hostel.rating} ⭐</p>
-                <div className="hostel-actions">
-                  <button>Book now</button>
-                  <button>Remove</button>
-                </div>
+                <button>Book now</button>
               </div>
             </div>
           ))
