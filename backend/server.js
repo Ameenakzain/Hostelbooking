@@ -1,63 +1,67 @@
 require("dotenv").config();
 const express = require("express");
-//const OwnerRoutes = require("backend/routes/OwnerRoutes");  // Check this import
-
 const mongoose = require("mongoose");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
-//Middleware
+
+// Middleware
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3001",  // ✅ Allow frontend running on 3001 to access the backend
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Allow frontend to access the backend
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
-
-//app.use("/uploads", express.static(uploadDir));
-
-
-// ✅ Ensure "uploads" folder exists
+// Ensure "uploads" folder exists
 const uploadDir = path.join(__dirname, "uploads");
-
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
   console.log("📂 'uploads' folder created.");
 }
 app.use("/uploads", express.static(uploadDir));
-const mongoURI = process.env.ConnectionString;
 
+// MongoDB Connection
+const mongoURI = process.env.ConnectionString;
 if (!mongoURI) {
   console.error("❌ MongoDB Connection String is missing! Check your .env file.");
   process.exit(1);
 }
 
-// 🔗 Connect to MongoDB
-mongoose.connect(mongoURI)  
+mongoose
+  .connect(mongoURI)
   .then(() => console.log("✅ MongoDB Connected Successfully"))
-  .catch(err => {
+  .catch((err) => {
     console.error("❌ MongoDB Connection Error:", err);
     process.exit(1);
   });
+
+// Routes
 const OwnerRoutes = require("./routes/OwnerRoutes");
-app.use("/api/owners", OwnerRoutes); // Mount the routes for handling owner-related requests
+const userRoutes = require("./routes/userRoutes");
+const hostelRoutes = require("./routes/hostelRoutes");
+const bookingRoutes = require("./routes/bookingRoutes"); // ✅ Add this
+const NotificationRoutes = require("./routes/NotificationRoutes"); // ✅ Add this
+const authRoutes = require("./routes/authRoutes");
 
-const userRoutes = require("./routes/userRoutes"); // Ensure this path is correct
-app.use("/api/users", userRoutes); // Mount user-related routes
+app.use("/api/owners", OwnerRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/hostels", hostelRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/bookings", bookingRoutes); // ✅ Ensure bookings route exists
+app.use("/api/notifications", NotificationRoutes); // ✅ Ensure notifications route exists
+app.use((req, res, next) => {
+  console.log(`🔍 Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
-const hostelRoutes = require("./routes/hostelRoutes"); // Add the hostel routes
-app.use("/api/hostels", hostelRoutes);  // Add this line for hostel-related routes
-
-const authRoutes = require("./routes/authRoutes"); // Import auth routes
-app.use("/api/auth", authRoutes); // Mount authentication routes
-
-
-// 📌 Sample Route
+// Sample Route
 app.get("/", async (req, res) => {
   try {
     res.send("Welcome to Hostel Booking API!");
